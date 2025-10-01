@@ -15,7 +15,8 @@ const Navbar = ({setShowLogin}) => {
     >
       <div className="flex items-center justify-between w-full">
         <Link to="/">
-          <img src={assets.logo} alt="logo" className="h-8" />
+          <img src={assets.logo} alt="rentora_logo" className="h-20 w-auto rounded-xl shadow-lg transition-transform duration-300 hover:scale-105" />
+
         </Link>
 
         <button
