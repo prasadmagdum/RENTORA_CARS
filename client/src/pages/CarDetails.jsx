@@ -1,4 +1,3 @@
-// src/pages/CarDetails.jsx
 import React, { useEffect } from 'react'
 import { assets } from '../assets/assets';
 import { dummyCarData } from '../assets/assets';
