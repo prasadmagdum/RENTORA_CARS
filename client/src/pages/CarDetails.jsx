@@ -1,7 +1,7 @@
 // src/pages/CarDetails.jsx
-import React, { useEffect } from 'react'
-import { assets } from '../assets/assets';
-import { dummyCarData } from '../assets/assets';
+import React, { useEffect, useState } from 'react'
+import{useNavigate , useParams} from 'react-router-dom';
+import { assets, dummyCarData } from '../assets/assets';
 
 const CarDetails = () => {
 
@@ -22,6 +22,20 @@ const CarDetails = () => {
         <img src={assets.arrow_icon} alt=" " className='rotate-180 opacity-65'/>
         Back to all cars
       </button>
+
+      <div className='grid grid-cols-1 lg:grid-cols-3  gap-8 lg:gap-12'>
+        {/* Left section - car images */}
+        <div className='lg:col-span-2'>
+          <img src={car.images[0]} alt={car.name} className='w-full h-96 object-cover rounded-lg mb-4'/>
+          <div className='grid grid-cols-3 gap-4'>
+            {car.images.slice(1).map((img, index) => (  
+              <img key={index} src={img} alt={`${car.name} ${index + 2}`} className='w-full h-32 object-cover rounded-lg'/>
+            ))}
+          </div>
+
+        </div>
+
+      </div>
 
 
     </div>
