@@ -1,55 +1,97 @@
 // src/pages/MyBooking.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { dummyCarData, assets } from "../assets/assets";
 
 const MyBooking = () => {
   const [bookings, setBookings] = useState([]);
+  const navigate = useNavigate();
 
+  // Simulate fetching bookings (you can replace this with API call later)
   useEffect(() => {
-    const storedBookings = JSON.parse(localStorage.getItem("bookings")) || [];
-    setBookings(storedBookings);
+    // Assuming dummyCarData represents cars; we’ll show first few as booked
+    const bookedCars = dummyCarData.slice(0, 3).map((car) => ({
+      ...car,
+      bookingDate: "2025-11-02",
+      status: "Confirmed",
+    }));
+    setBookings(bookedCars);
   }, []);
 
-  const handleClear = () => {
-    localStorage.removeItem("bookings");
-    setBookings([]);
-  };
-
   return (
-    <div className="px-6 md:px-12 lg:px-24 xl:px-32 mt-16 mb-16">
-      <h1 className="text-3xl font-bold mb-8 text-center">My Bookings</h1>
+    <div className="min-h-screen py-20 px-6 sm:px-16 lg:px-24 xl:px-32 bg-gray-50">
+      {/* Page Title */}
+      <h1 className="text-3xl font-semibold text-center mb-10 text-gray-800">
+        My Bookings
+      </h1>
 
-      {bookings.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {bookings.map((b, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition"
-              >
-                <h2 className="text-xl font-semibold mb-2">{b.carName}</h2>
-                <p className="text-gray-600 mb-1">Name: {b.name}</p>
-                <p className="text-gray-600 mb-1">Email: {b.email}</p>
-                <p className="text-gray-600 mb-1">Date: {b.date}</p>
-                <p className="text-gray-800 font-semibold mt-3">
-                  ${b.price} / day
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-10">
-            <button
-              onClick={handleClear}
-              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
-            >
-              Clear All Bookings
-            </button>
-          </div>
-        </>
+      {/* If no bookings */}
+      {bookings.length === 0 ? (
+        <div className="flex flex-col items-center justify-center mt-20">
+          <img
+            src={assets.empty_icon}
+            alt="No Bookings"
+            className="w-60 mb-6"
+          />
+          <p className="text-lg text-gray-600 mb-4">
+            You don’t have any bookings yet.
+          </p>
+          <button
+            onClick={() => navigate("/cars")}
+            className="px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition"
+          >
+            Book Now
+          </button>
+        </div>
       ) : (
-        <p className="text-center text-gray-500 text-lg mt-10">
-          You haven’t booked any cars yet.
-        </p>
+        // Booking List
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {bookings.map((booking) => (
+            <div
+              key={booking.id}
+              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
+            >
+              <img
+                src={booking.image}
+                alt={booking.name}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-5">
+                <h2 className="text-xl font-semibold mb-2">{booking.name}</h2>
+                <p className="text-gray-600 text-sm mb-2">
+                  {booking.type} • {booking.transmission}
+                </p>
+                <p className="text-gray-800 font-medium mb-1">
+                  ₹{booking.price}/day
+                </p>
+                <p className="text-gray-500 text-sm mb-3">
+                  Booked on: {booking.bookingDate}
+                </p>
+
+                <span
+                  className={`inline-block px-3 py-1 text-sm rounded-full ${
+                    booking.status === "Confirmed"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {booking.status}
+                </span>
+
+                <button
+                  onClick={() =>
+                    navigate(`/car-details/${booking.id}`, {
+                      state: { fromBooking: true },
+                    })
+                  }
+                  className="w-full mt-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

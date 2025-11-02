@@ -6,7 +6,7 @@ const Cars = () => {
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All");
 
-  // Filter cars by search and city
+  // ✅ Filter cars by search & city
   const filteredCars = dummyCarData.filter((car) => {
     const matchesSearch =
       car.brand.toLowerCase().includes(search.toLowerCase()) ||
@@ -19,8 +19,8 @@ const Cars = () => {
     <div className="px-6 md:px-12 lg:px-24 xl:px-32 mt-16 mb-16">
       <h1 className="text-3xl font-bold mb-8 text-center">Available Cars</h1>
 
-      {/* Search + Filter Section */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+      {/* 🔍 Search + City Filter */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
         <input
           type="text"
           placeholder="Search by brand or model..."
@@ -43,19 +43,20 @@ const Cars = () => {
         </select>
       </div>
 
-      {/* Cars List */}
+      {/* 🚗 Cars Grid */}
       {filteredCars.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCars.map((car) => (
             <div
-              key={car._id}
-              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              key={car._id || car.id}
+              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all"
             >
               <img
                 src={car.image}
                 alt={`${car.brand} ${car.model}`}
                 className="w-full h-56 object-cover"
               />
+
               <div className="p-5">
                 <h2 className="text-xl font-semibold">
                   {car.brand} {car.model}
@@ -63,6 +64,7 @@ const Cars = () => {
                 <p className="text-gray-500 text-sm mb-3">
                   {car.category} • {car.year}
                 </p>
+
                 <div className="flex items-center justify-between text-gray-600 text-sm mb-4">
                   <span className="flex items-center gap-1">
                     <img src={assets.users_icon} alt="" className="w-4 h-4" />
@@ -78,8 +80,11 @@ const Cars = () => {
                   <p className="text-lg font-semibold text-gray-800">
                     ${car.pricePerDay} / day
                   </p>
-                  <Link to={`/car-details/${car._id}`}>
-                    <button className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition-all">
+                  <Link to={`/car-details/${car._id || car.id}`}>
+                    <button
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition-all"
+                    >
                       View Details
                     </button>
                   </Link>

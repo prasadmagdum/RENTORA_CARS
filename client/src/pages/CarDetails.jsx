@@ -7,7 +7,7 @@ const CarDetails = () => {
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
 
-  // ✅ Fix: Match both _id and id
+  // ✅ Find car by ID
   useEffect(() => {
     const foundCar = dummyCarData.find(
       (c) => String(c._id || c.id) === String(id)
@@ -15,10 +15,16 @@ const CarDetails = () => {
     setCar(foundCar);
   }, [id]);
 
-  // ✅ If data found, render details
-  return car ? (
+  if (!car)
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-500">
+        Loading...
+      </div>
+    );
+
+  return (
     <div className="px-6 md:px-12 lg:px-24 xl:px-32 mt-16 mb-20">
-      {/* ✅ Back Button — always go to /cars (fixes loading issue) */}
+      {/* 🔙 Back Button */}
       <button
         onClick={() => {
           navigate("/cars");
@@ -28,24 +34,23 @@ const CarDetails = () => {
       >
         <img
           src={assets.arrow_icon}
-          alt=""
-          className="rotate-180 opacity-65 w-4"
+          alt="Back"
+          className="rotate-180 opacity-70 w-4"
         />
         Back to all cars
       </button>
 
-      {/* Car Details Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-        {/* Left: Car Image & Details */}
+      {/* 🚗 Car Details */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {/* Left — Car Image & Info */}
         <div className="lg:col-span-2">
           <img
             src={car.image}
             alt={`${car.brand} ${car.model}`}
-            className="w-full h-auto max-h-[450px] object-cover rounded-xl mb-6 shadow-md"
+            className="w-full rounded-2xl object-cover max-h-[460px] shadow-md"
           />
 
-          <div className="space-y-6">
-            {/* Title & Year */}
+          <div className="mt-6 space-y-6">
             <div>
               <h1 className="text-3xl font-bold">
                 {car.brand} {car.model}
@@ -55,9 +60,9 @@ const CarDetails = () => {
               </p>
             </div>
 
-            <hr className="border-gray-300 my-6" />
+            <hr className="border-gray-200" />
 
-            {/* Car Info */}
+            {/* Details Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { icon: assets.users_icon, text: `${car.seating_capacity} Seats` },
@@ -67,7 +72,7 @@ const CarDetails = () => {
               ].map(({ icon, text }) => (
                 <div
                   key={text}
-                  className="flex flex-col items-center bg-gray-50 p-4 rounded-lg"
+                  className="flex flex-col items-center bg-gray-50 p-4 rounded-xl"
                 >
                   <img src={icon} alt="" className="h-5 mb-2" />
                   <p className="text-gray-700 text-sm">{text}</p>
@@ -77,28 +82,53 @@ const CarDetails = () => {
 
             {/* Description */}
             <div>
-              <h1 className="text-xl font-medium mb-3">Description</h1>
-              <p className="text-gray-500">{car.description}</p>
-            </div>
-
-            {/* Price and Book Button */}
-            <div className="flex justify-between items-center mt-6">
-              <p className="text-lg font-semibold text-gray-800">
-                ${car.pricePerDay} / day
-              </p>
-              <button
-                onClick={() => navigate(`/book-car/${car._id || car.id}`)}
-                className="bg-black text-white px-6 py-2 rounded-lg text-sm hover:bg-gray-800 transition-all"
-              >
-                Book Now
-              </button>
+              <h2 className="text-xl font-medium mb-2">Description</h2>
+              <p className="text-gray-500 leading-relaxed">{car.description}</p>
             </div>
           </div>
         </div>
+
+        {/* Right — Booking Box */}
+        <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 flex flex-col justify-between h-fit">
+          <div>
+            <h2 className="text-2xl font-semibold">${car.pricePerDay}</h2>
+            <p className="text-gray-400 text-sm mb-6">per day</p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Pickup Date
+                </label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Return Date
+                </label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate(`/book-car/${car._id || car.id}`)}
+            className="mt-6 w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition-all"
+          >
+            Book Now
+          </button>
+
+          <p className="text-center text-gray-400 text-xs mt-3">
+            No credit card required to reserve
+          </p>
+        </div>
       </div>
     </div>
-  ) : (
-    <p className="text-center text-gray-500 text-lg mt-20">Loading...</p>
   );
 };
 
