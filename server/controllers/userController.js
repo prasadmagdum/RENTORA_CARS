@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 // Generate JWT Token
 const generateToken = (userId) => {
     const payload = { id: userId };
-    return jwt.sign(payload, process.env.JWT_SECRET, );
+    return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
  export const registerUser = async (req, res) => {
@@ -44,3 +44,34 @@ const generateToken = (userId) => {
 
     }
     };
+    
+// Login User
+export const loginUser = async (req, res) => {
+    try{
+        const { email, password } = req.body; 
+        const user = await User.findOne({ email });
+        if(!user){
+            return res.json({ success: false, message: "Invalid credentials" });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+            return res.json({ success: false, message: "Invalid credentials" });
+        }
+        const token = generateToken(user._id.toString());
+        res.json({ success: true, data: { token } });
+    }
+    catch(error){
+        console.log(error.message);
+        res.json({ success: false, message: "Server Error" });
+    }
+};
+
+// Get User data using Token (JWT)
+export const getUserData = async (req, res) => {
+  try {
+    res.json({ success: true, data: req.user });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
