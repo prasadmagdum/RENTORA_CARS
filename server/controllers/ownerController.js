@@ -2,6 +2,7 @@ import Car from '../models/Car.js';
 import User from '../models/User.js';
 import fs from 'fs';
 import imagekit from "../configs/imagekit.js";
+import Booking from '../models/booking.js';
 
 
 export const changeRoleToOwner = async (req, res) => {
@@ -117,17 +118,71 @@ export const deleteCar = async (req, res) => {
 
 // API to get dashboard data 
 
-export const getOwnerDashboardData = async (req, res) => {
+export const getDashboardData = async (req, res) => {
   try {
-    const { _id } = req.user; 
+    const { _id , role} = req.user; 
     if (role !== 'owner') {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
     const cars = await Car.find({ owner: _id });
+    const bookings = await Booking.find({ owner: _id }).populate('car ').sort({ createdAt: -1 });
     
+    const  pendingBookings = await Booking.find({ owner: _id, status: 'pending' });
+    const  confirmedBookings = await Booking.find({ owner: _id, status: 'confirmed' });
+
+    // calculate monthlyRevenue from confirmed bookings
+    const monthlyRevenue = bookings.slice().filter(booking => booking.status === 'confirmed').reduce((acc , booking) => acc + booking.price , 0);
+
+    const dashboardData = {
+      totalCars: cars.length,
+      totalBookings: bookings.length,
+      pendingBookings: pendingBookings.length,
+      completedBookings: completedBookings.length,
+      recentBookings: bookings.slice(0, 3),
+      monthlyRevenue,
+    };
+    res.json({ success: true, data: dashboardData });
+
+
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: "Server Error" });
   }   
 };
 
+// API to update user profile
+
+export const updateuserImage = async (req, res) => {
+
+  try {
+    const { _id } = req.user;
+    const imageFile = req.file;
+
+    const fileBuffer = fs.readFileSync(imageFile.path);
+    const response = await imagekit.upload({
+      file: fileBuffer,
+      fileName: imageFile.originalname,
+      folder: "/users/",
+    });
+    // Generate optimized URL
+    var optimizedImageUrl = imagekit.url({
+      path: response.filePath,
+      transformation: [
+        { width: "400" },
+        { quality: "auto" },
+        { format: "webp" },
+      ],
+    });
+
+    const image = optimizedImageUrl;
+
+    await User.findByIdAndUpdate(_id, { image });
+
+    res.json({ success: true, message: "Profile image updated", data: { image } });
+
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: "Server Error" });
+  } 
+};
+  
