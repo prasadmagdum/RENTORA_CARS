@@ -11,7 +11,7 @@ ownerRoutes.post("/add-car",protect, upload.single("image"),addCar);
 ownerRoutes.get("/cars", protect , getOwnerCars);
 ownerRoutes.post("/toggle-car", protect , toggleCarAvailability);
 ownerRoutes.post("/delete-car", protect , deleteCar);
-ownerRoutes.get("/dashboard " , protect, getDashboardData)
+ownerRoutes.get("/dashboard", protect, getDashboardData)
 ownerRoutes.post("/update-image", upload.single("image"), protect, updateuserImage);
 
 export default ownerRoutes;

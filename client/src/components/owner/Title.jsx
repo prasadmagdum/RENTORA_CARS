@@ -1,17 +1,14 @@
-import React from "react";
+import React from 'react'
 
-const Title = ({ title, subtitle }) => {
+const Title = ({ title, subTitle }) => {
   return (
-    <div className="text-center max-w-2xl mx-auto mb-12">
-      <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-        {title}
-      </h1>
-      {subtitle && (
-        <p className="text-gray-500 text-sm sm:text-base">{subtitle}</p>
-      )}
-      <div className="w-20 h-[2px] bg-yellow-400 mx-auto mt-4"></div>
+    <div>
+      <h1 className="font-medium text-3xl">{title}</h1>
+      <p className="text-sm md:text-base text-gray-500/90 mt-2 max-w-[600px]">
+        {subTitle}
+      </p>
     </div>
-  );
-};
+  )
+}
 
-export default Title;
+export default Title

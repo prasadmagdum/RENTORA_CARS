@@ -37,7 +37,7 @@ export const checkCarAvailability = async (req, res) => {
 // API to Book a car
 export const createBooking = async (req, res) => {
     try {
-         const { _id } = req.user; 
+        const { _id } = req.user; 
         const { carId, pickupDate, returnDate } = req.body;  
         const isAvailable = await checkAvailability (car,pickupDate, returnDate);
         if (!isAvailable) {

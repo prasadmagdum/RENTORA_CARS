@@ -125,7 +125,7 @@ export const getDashboardData = async (req, res) => {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
     const cars = await Car.find({ owner: _id });
-    const bookings = await Booking.find({ owner: _id }).populate('car ').sort({ createdAt: -1 });
+    const bookings = await Booking.find({ owner: _id }).populate('car').sort({ createdAt: -1 });
     
     const  pendingBookings = await Booking.find({ owner: _id, status: 'pending' });
     const  confirmedBookings = await Booking.find({ owner: _id, status: 'confirmed' });

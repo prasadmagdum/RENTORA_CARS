@@ -1,80 +1,83 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Car,
-  ClipboardList,
-  Users,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import { dummyUserData, ownerMenuLinks, assets } from "../../assets/assets";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
-  const [open, setOpen] = useState(true);
+  const user = dummyUserData;
   const location = useLocation();
+  const [image, setImage] = useState("");
 
-  const menuItems = [
-    { name: "Dashboard", path: "/owner/dashboard", icon: <LayoutDashboard size={20} /> },
-    { name: "Cars", path: "/owner/cars", icon: <Car size={20} /> },
-    { name: "Bookings", path: "/owner/bookings", icon: <ClipboardList size={20} /> },
-    { name: "Customers", path: "/owner/customers", icon: <Users size={20} /> },
-  ];
+  const updateImage = async () => {
+    user.image = URL.createObjectURL(image);
+  };
 
   return (
-    <div
-      className={`${
-        open ? "w-64" : "w-20"
-      } bg-black text-white min-h-screen flex flex-col transition-all duration-300 fixed left-0 top-0`}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700">
-        <h1
-          className={`text-xl font-bold transition-all duration-300 ${
-            !open && "opacity-0 pointer-events-none"
-          }`}
-        >
-          Rentora<span className="text-yellow-400">Owner</span>
-        </h1>
-        <button onClick={() => setOpen(!open)} className="md:hidden text-white">
-          {open ? <X size={24} /> : <Menu size={24} />}
-        </button>
+    <div className="relative min-h-screen md:flex flex-col items-center pt-8 max-w-13 md:max-w-60 w-full border-r border-borderColor text-sm">
+      <div className="group relative">
+        <label htmlFor="image" className="cursor-pointer">
+          <img
+            src={
+              image
+                ? URL.createObjectURL(image)
+                : user?.image ||
+                  "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=300"
+            }
+            alt="User"
+            className="w-24 h-24 rounded-full object-cover"
+          />
+          <input
+            type="file"
+            id="image"
+            accept="image/*"
+            hidden
+            onChange={(e) => setImage(e.target.files[0])}
+          />
+
+          <div className="absolute hidden top-0 right-0 left-0 bottom-0 bg-black/30 rounded-full group-hover:flex items-center justify-center cursor-pointer">
+            <img src={assets.edit_icon} alt="edit" width={20} />
+          </div>
+        </label>
       </div>
 
-      {/* Menu */}
-      <div className="flex flex-col mt-6 gap-4">
-        {menuItems.map((item) => (
-          <Link
-            key={item.name}
-            to={item.path}
-            className={`flex items-center gap-3 px-4 py-2 mx-2 rounded-md hover:bg-yellow-400 hover:text-black transition ${
-              location.pathname === item.path ? "bg-yellow-400 text-black" : ""
+      {image && (
+        <button
+          onClick={updateImage}
+          className="absolute top-0 right-0 flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-sm rounded-md cursor-pointer"
+        >
+          Save
+          <img src={assets.check_icon} width={13} alt="check" />
+        </button>
+      )}
+
+      <p className="mt-2 text-base max-md:hidden">{user?.name}</p>
+
+      <div className="w-full">
+        {ownerMenuLinks.map((link, index) => (
+          <NavLink
+            key={index}
+            to={link.path}
+            className={`relative flex items-center gap-2 w-full py-3 pl-4 first:mt-6 ${
+              link.path === location.pathname
+                ? "bg-primary/10 text-primary"
+                : "text-gray-600"
             }`}
           >
-            {item.icon}
-            <span
-              className={`text-sm font-medium transition-all duration-200 ${
-                !open && "hidden"
-              }`}
-            >
-              {item.name}
-            </span>
-          </Link>
-        ))}
-      </div>
+            <img
+              src={
+                link.path === location.pathname
+                  ? link.coloredIcon
+                  : link.icon
+              }
+              alt={link.name}
+              className="w-5 h-5"
+            />
+            <span className="max-md:hidden">{link.name}</span>
 
-      {/* Logout */}
-      <div className="mt-auto px-4 py-4 border-t border-gray-700">
-        <button
-          className="flex items-center gap-3 w-full text-left text-red-400 hover:text-red-500 transition"
-          onClick={() => {
-            localStorage.removeItem("ownerToken");
-            window.location.href = "/login";
-          }}
-        >
-          <LogOut size={20} />
-          {open && <span className="text-sm font-medium">Logout</span>}
-        </button>
+            {link.path === location.pathname && (
+              <div className="absolute right-0 w-1.5 h-8 bg-primary rounded-l-lg"></div>
+            )}
+          </NavLink>
+        ))}
       </div>
     </div>
   );
