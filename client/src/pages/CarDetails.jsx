@@ -1,19 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { dummyCarData, assets } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const CarDetails = () => {
   const { id } = useParams();
+  const {cars , axios , pickupDate , setPickupDate , returnDate , setReturnDate}= useAppContext()
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
 
+  const handleSubmit = async (e)=>{
+    e.preventDefault();
+    try{
+      const {data}=await axios.post('/api/bookings/create',{
+        car:id ,
+        pickupDate,
+        returnDate
+      })
+
+      if (data.success){
+        toast.success(data.message)
+
+      }
+    } catch (error){
+      toast.error(error.message)
+
+    }
+  }
+
   // ✅ Find car by ID
   useEffect(() => {
-    const foundCar = dummyCarData.find(
-      (c) => String(c._id || c.id) === String(id)
-    );
-    setCar(foundCar);
-  }, [id]);
+    setCar(cars.find(car=> car._id==id))}, [cars,id]);
 
   if (!car)
     return (
@@ -99,7 +117,7 @@ const CarDetails = () => {
                 <label className="block text-sm text-gray-600 mb-1">
                   Pickup Date
                 </label>
-                <input
+                <input value={pickupDate}onChange={(e)=>setPickupDate(e.target.value)}
                   type="date"
                   className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
                 />
@@ -108,7 +126,7 @@ const CarDetails = () => {
                 <label className="block text-sm text-gray-600 mb-1">
                   Return Date
                 </label>
-                <input
+                <input value={returnDate}onChange={(e)=>setReturnDate(e.target.value)}
                   type="date"
                   className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
                 />

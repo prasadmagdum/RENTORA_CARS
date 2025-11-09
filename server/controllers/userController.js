@@ -1,6 +1,7 @@
  import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Car from "../models/Car.js"
 
 
 
@@ -70,6 +71,19 @@ export const loginUser = async (req, res) => {
 export const getUserData = async (req, res) => {
   try {
     res.json({ success: true, data: req.user });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+// Get All cars for Frontend
+
+export const getCars = async (req, res) => {
+  try {
+    const cars=await Car.find({isAvailable:true})
+    res.json({success:true,cars})
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ success: false, message: "Server Error" });

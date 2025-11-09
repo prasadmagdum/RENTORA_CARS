@@ -1,16 +1,43 @@
 import React , {useEffect,useState} from 'react'
-import { dummyMyBookingsData } from '../../assets/assets'
 import Title from '../../components/owner/Title'
+import axios from 'axios'
+import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
 
 
 const ManageBookings = () => {
 
-  const currency = import.meta.env.VITE_CURRENCY 
+  const {currency, axios} = useAppContext()
+
 
   const [bookings,setBooking]=useState([])
 
   const fetchOwnerBookings = async()=>{
-    setBooking(dummyMyBookingsData)
+    try{
+      const {data} = await axios.get('/api/bookings/owner')
+      data.success ? setBooking(data.bookings): toast.error(data.message)
+
+    }catch (error){
+      toast.error(error.message)
+
+    }
+  }
+
+  const changeBookingStatus = async(bookingId, status)=>{
+    try{
+      const {data} = await axios.post('/api/bookings/change-status',{bookingId,status})
+      if (data.success){
+        toast.success(data.message)
+        fetchOwnerBookings()
+      }else{
+        toast.error(data.message)
+      }
+
+
+    }catch (error){
+      toast.error(error.message)
+
+    }
   }
 
   useEffect(()=>{
@@ -64,7 +91,7 @@ const ManageBookings = () => {
                   {booking.status === "pending" ? (
                     <select
                       value={booking.status}
-                      onChange={(e) => handleStatusChange(booking._id, e.target.value)}
+                      onChange={(e) => changeBookingStatus(booking._id, e.target.value)}
                       className="px-2 py-1.5 mt-1 text-gray-600 border border-borderColor rounded-md outline-none"
                     >
                       <option value="pending">Pending</option>

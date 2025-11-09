@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
 import { assets, cityList } from '../assets/assets'
+import { useAppContext } from '../context/AppContext'
 
 const Hero = () => {
+
+
+  const {pickupDate , setPickupDate, returnDate, setReturnDate, navigate} = useAppContext()
+
   const [pickupLocation, setPickupLocation] = useState("")
-  const [pickupDate, setPickupDate] = useState("")
-  const [returnDate, setReturnDate] = useState("")
+ 
+ 
 
   const handleSearch = (e) => {
     e.preventDefault()
-    console.log({
-      pickupLocation,
-      pickupDate,
-      returnDate
-    })
+    navigate('/cars?pickupLocation=' + pickupLocation + '&pickupDate='+ pickupDate +'&returnDate='+returnDate)
+    
     // Later you can navigate or call API here
   }
 

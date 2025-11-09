@@ -1,8 +1,61 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { dummyCarData, assets, cityList } from "../assets/assets";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const Cars = () => {
+
+  const [searchParams]= useSearchParams()
+  const pickupLocation=searchParams.get('pickupLocation')
+  const pickupDate=searchParams.get('pickupDate')
+  const returnDate=searchParams.get('returnDate')
+
+  const {cars, axios} = useAppContext()
+
+  const [input, setInput]=useState('')
+
+  const isSearchData = pickupLocation && pickupDate && returnDate
+  
+
+  const applyFilter = async()=>{
+    if(input === ''){
+      setFilteredCars(cars)
+      return null
+    }
+
+    const filtered = cars.slice.filter()((car)=>{
+      return car.brand.toLowerCase().includes(input.toLowerCase())
+      || model.brand.toLowerCase().includes(input.toLowerCase())
+      || category.brand.toLowerCase().includes(input.toLowerCase())
+      || transmission.brand.toLowerCase().includes(input.toLowerCase())
+    })
+
+    setFilteredCars(filtered)
+
+  }
+
+  const searchCarAvailablity = async ()=>{
+    const {data}= await axios.post('/api/bookings/check-availability',{location: pickupLocation,pickupDate,returnDate})
+    if (data.success){
+      setFilteredCars(data.availableCars)
+      if (data.availableCars.length===0){
+        toast('No cars available')
+
+      }
+      return null
+    }
+  }
+
+  useEffect (()=>{
+    isSearchData && searchCarAvailablity()
+  }, [input , cars])
+
+  useEffect(()=>{
+    cars.length >0 && !isSearchData && applyFilter
+  }
+  )
+
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All");
 

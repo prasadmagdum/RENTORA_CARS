@@ -1,22 +1,38 @@
 // src/pages/MyBooking.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { dummyCarData, assets } from "../assets/assets";
+import { assets } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const MyBooking = () => {
+
+  const {axios , user , currency}= useAppContext()
+
+
+
   const [bookings, setBookings] = useState([]);
   const navigate = useNavigate();
 
+  const fetchMyBooking = async ()=>{
+    try{
+      const {data}= await axios.get('/api/bookings/user')
+      if (data.success){
+        setBookings(data.bookings)
+      }else{
+        toast.error(data.message)
+      }
+
+    }catch{
+      toast.error(error.message)
+
+    }
+  }
+
   // Simulate fetching bookings (you can replace this with API call later)
   useEffect(() => {
-    // Assuming dummyCarData represents cars; we’ll show first few as booked
-    const bookedCars = dummyCarData.slice(0, 3).map((car) => ({
-      ...car,
-      bookingDate: "2025-11-02",
-      status: "Confirmed",
-    }));
-    setBookings(bookedCars);
-  }, []);
+    user && fetchMyBooking()
+  }, [user]);
 
   return (
     <div className="min-h-screen py-20 px-6 sm:px-16 lg:px-24 xl:px-32 bg-gray-50">
