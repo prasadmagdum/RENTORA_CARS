@@ -4,6 +4,7 @@
 // Function to check the Availiblity
 
 import Booking from "../models/Booking.js";
+import Car from "../models/Car.js";
 
 const checkAvailability = async (car , pickupDate , returnDate) => {
     const booking = await Booking.find({
@@ -41,33 +42,40 @@ export const createBooking = async (req, res) => {
     try {
         const { _id } = req.user; 
         const { carId, pickupDate, returnDate } = req.body;  
-        const isAvailable = await checkAvailability (carId,pickupDate, returnDate);
+
+        const isAvailable = await checkAvailability(carId, pickupDate, returnDate);
         if (!isAvailable) {
             return res.json({ success: false, message: "Car not available" });
         }
 
         const car = await Car.findById(carId);
-        
+        if (!car) {
+            return res.json({ success: false, message: "Car not found" });
+        }
 
-        // Calculate price (Assuming price is per day)
+        // Calculate price (price per day)
         const picked = new Date(pickupDate);
         const returned = new Date(returnDate);
         const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24));
-        const price = noOfDays * carData.pricePerDay;
-        const Booking = await Booking.create({
+        const price = noOfDays * car.pricePerDay;
+
+        const booking = await Booking.create({
             car: carId,
             user: _id,  
             owner: car.owner,
             pickupDate: picked,
             returnDate: returned,
             price,
+            status: "pending",
         });
-        res.json({ success: true, message: "Booking created successfully", data: Booking });
+
+        res.json({ success: true, message: "Booking created successfully", data: booking });
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: "Server Error" });
     }
 };
+
 
 // API to List User Bookings
 

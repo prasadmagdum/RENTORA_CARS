@@ -1,48 +1,59 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { dummyCarData, assets } from "../assets/assets";
+import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 
 const CarDetails = () => {
   const { id } = useParams();
-  const {cars , axios , pickupDate , setPickupDate , returnDate , setReturnDate}= useAppContext()
+  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate } = useAppContext();
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
 
-  const handleSubmit = async (e)=>{
-    e.preventDefault();
-    try{
-      const {data}=await axios.post('/api/bookings/create',{
-        car:id ,
-        pickupDate,
-        returnDate
-      })
-
-      if (data.success){
-        toast.success(data.message)
-
-      }
-    } catch (error){
-      toast.error(error.message)
-
-    }
-  }
-
-  // ✅ Find car by ID
+  // Fetch car by ID
   useEffect(() => {
-    setCar(cars.find(car=> car._id==id))}, [cars,id]);
+    const foundCar = cars.find((c) => c._id === id);
+    setCar(foundCar);
+  }, [cars, id]);
 
-  if (!car)
+  // Handle booking submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!pickupDate || !returnDate) {
+      toast.error("Please select pickup and return dates");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post("/api/bookings/create-booking", {
+        carId: car._id,
+        pickupDate,
+        returnDate,
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        navigate("/my-bookings"); // redirect to bookings page
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
+
+  if (!car) {
     return (
       <div className="flex justify-center items-center h-screen text-gray-500">
         Loading...
       </div>
     );
+  }
 
   return (
     <div className="px-6 md:px-12 lg:px-24 xl:px-32 mt-16 mb-20">
-      {/* 🔙 Back Button */}
+      {/* Back Button */}
       <button
         onClick={() => {
           navigate("/cars");
@@ -58,7 +69,6 @@ const CarDetails = () => {
         Back to all cars
       </button>
 
-      {/* 🚗 Car Details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Left — Car Image & Info */}
         <div className="lg:col-span-2">
@@ -117,7 +127,9 @@ const CarDetails = () => {
                 <label className="block text-sm text-gray-600 mb-1">
                   Pickup Date
                 </label>
-                <input value={pickupDate}onChange={(e)=>setPickupDate(e.target.value)}
+                <input
+                  value={pickupDate}
+                  onChange={(e) => setPickupDate(e.target.value)}
                   type="date"
                   className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
                 />
@@ -126,7 +138,9 @@ const CarDetails = () => {
                 <label className="block text-sm text-gray-600 mb-1">
                   Return Date
                 </label>
-                <input value={returnDate}onChange={(e)=>setReturnDate(e.target.value)}
+                <input
+                  value={returnDate}
+                  onChange={(e) => setReturnDate(e.target.value)}
                   type="date"
                   className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
                 />
@@ -135,7 +149,7 @@ const CarDetails = () => {
           </div>
 
           <button
-            onClick={() => navigate(`/book-car/${car._id || car.id}`)}
+            onClick={handleSubmit}
             className="mt-6 w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition-all"
           >
             Book Now
