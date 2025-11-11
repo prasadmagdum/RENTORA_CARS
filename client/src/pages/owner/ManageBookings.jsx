@@ -14,7 +14,7 @@ const ManageBookings = () => {
 
   const fetchOwnerBookings = async()=>{
     try{
-      const {data} = await axios.get('/api/bookings/owner')
+      const {data} = await axios.get('/api/bookings/owner-bookings')
       data.success ? setBooking(data.bookings): toast.error(data.message)
 
     }catch (error){

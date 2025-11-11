@@ -3,8 +3,7 @@ import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
 
 const Login = () => {
-    const {setShowLogin , axios , setToken, navigate} = useAppContext()
-
+  const { setShowLogin, axios, setToken, navigate } = useAppContext()
 
   const [state, setState] = useState("login")
   const [name, setName] = useState("")
@@ -12,32 +11,22 @@ const Login = () => {
   const [password, setPassword] = useState("")
 
   const onSubmitHandler = async (event) => {
-    try{
-        event.preventDefault()
-        const {data}= await axios.post('/api/user/${state}', {name,email,password})
+    event.preventDefault()
+    try {
+      const { data } = await axios.post(`/api/user/${state}`, { name, email, password })
 
-        if (data.success){
-            navigate('/')
-            setToken(data.token)
-            localStorage.setItem('token', data.token)
-            setShowLogin(false)
-
-        }else{
-            toast.error(data.message)
-        }
-        
-
-    }catch (error){
-        toast.error(error.message)
-
-    }
-    
-    if (state === "login") {
-      console.log("Logging in:", { email, password })
-      // 🧠 Add API call for login here
-    } else {
-      console.log("Registering:", { name, email, password })
-      // 🧠 Add API call for registration here
+      if (data.success) {
+        setToken(data.token)
+        localStorage.setItem("token", data.token)
+        setShowLogin(false)
+        navigate('/')
+        toast.success(state === "login" ? "Login successful!" : "Account created!")
+      } else {
+        toast.error(data.message || "Something went wrong")
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Server error")
+      console.error(error)
     }
   }
 

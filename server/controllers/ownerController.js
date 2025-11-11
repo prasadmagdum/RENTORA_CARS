@@ -2,7 +2,7 @@ import Car from '../models/Car.js';
 import User from '../models/User.js';
 import fs from 'fs';
 import imagekit from "../configs/imagekit.js";
-import Booking from '../models/booking.js';
+import Booking from '../models/Booking.js';
 
 
 export const changeRoleToOwner = async (req, res) => {
@@ -71,7 +71,7 @@ export const getOwnerCars =   async (req, res) => {
   try {
     const{ _id } = req.user;
     const cars = await Car.find({ owner: _id });
-    res.json({ success: true, data: cars });
+    res.json({ success: true, cars });
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: "Server Error" });
@@ -87,7 +87,7 @@ export const toggleCarAvailability = async (req, res) => {
     if (car.owner.toString() !== _id.toString()) {
       return res.json({ success: false, message: "Car not found" });
     }       
-    car.available = !car.available;
+    car.isAvailable = !car.isAvailable;
     await car.save();   
     res.json({ success: true, message: "Car availability updated", data: car });
   } catch (error) {
@@ -101,7 +101,7 @@ export const deleteCar = async (req, res) => {
   try {
     const { _id } = req.user;
     const { carId } = req.body;
-    const car = await Car.findById(carId);
+    const car = await Car.findByIdAndDelete(carId);
 
     if (car.owner.toString() !== _id.toString()) {
       return res.json({ success: false, message: "Car not found" });
@@ -137,7 +137,7 @@ export const getDashboardData = async (req, res) => {
       totalCars: cars.length,
       totalBookings: bookings.length,
       pendingBookings: pendingBookings.length,
-      completedBookings: completedBookings.length,
+      completedBookings: confirmedBookings.length,
       recentBookings: bookings.slice(0, 3),
       monthlyRevenue,
     };
@@ -149,6 +149,26 @@ export const getDashboardData = async (req, res) => {
     res.json({ success: false, message: "Server Error" });
   }   
 };
+
+// API to List Owner Bookings
+export const getOwnerBookings = async (req, res) => {
+  try {
+    if (req.user.role !== "owner") {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const bookings = await Booking.find({ owner: req.user._id })
+      .populate("car user")
+      .select("-user.password")
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, data: bookings });
+  } catch (error) {
+    console.log("Error in getOwnerBookings:", error.message);
+    res.json({ success: false, message: "Server Error" });
+  }
+};
+
 
 // API to update user profile
 
@@ -186,3 +206,4 @@ export const updateuserImage = async (req, res) => {
   } 
 };
   
+

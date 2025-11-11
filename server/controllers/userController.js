@@ -1,91 +1,117 @@
- import User from '../models/User.js';
+import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import Car from "../models/Car.js"
+import Car from "../models/Car.js";
 
-
-
-// Generate JWT Token
+// 🧠 Utility: Generate JWT Token
 const generateToken = (userId) => {
-    const payload = { id: userId };
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
- export const registerUser = async (req, res) => {
-    try{
-        const { name, email, password, role } = req.body;   
-
-        if(!name || !email || !password || password.length < 8){
-            return res.json({ success: false, message: "Invalid input data" });
-        }
-
-        const userExists = await User.findOne({email});
-        if(userExists){
-            return res.json({ success: false, message: "User already exists" });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user= await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role
-        });
-
-        const token = generateToken(user._id.toString());
-        res.json({ success: true, data: { token } });
-
-
-
-
-    }
-    catch(error){
-        console.log(error.message);
-        res.json({ success: false, message: "Server Error" });
-
-    }
-    };
-    
-// Login User
-export const loginUser = async (req, res) => {
-    try{
-        const { email, password } = req.body; 
-        const user = await User.findOne({ email });
-        if(!user){
-            return res.json({ success: false, message: "Invalid credentials" });
-        }
-        const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.json({ success: false, message: "Invalid credentials" });
-        }
-        const token = generateToken(user._id.toString());
-        res.json({ success: true, data: { token } });
-    }
-    catch(error){
-        console.log(error.message);
-        res.json({ success: false, message: "Server Error" });
-    }
-};
-
-// Get User data using Token (JWT)
-export const getUserData = async (req, res) => {
+// 🧩 Register User
+export const registerUser = async (req, res) => {
   try {
-    res.json({ success: true, data: req.user });
+    const { name, email, password, role } = req.body;
+
+    // ✅ Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long" });
+    }
+
+    // ✅ Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "User already exists" });
+    }
+
+    // ✅ Hash password and save
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "user",
+    });
+
+    // ✅ Generate Token
+    const token = generateToken(user._id.toString());
+
+    // ✅ Return clean response
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      token,  // moved token to root level for easier frontend use
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
-    console.error(error.message);
+    console.error("Register Error:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
+// 🧩 Login User
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-// Get All cars for Frontend
+    // ✅ Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
+    }
 
+    // ✅ Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
+    }
+
+    // ✅ Generate Token
+    const token = generateToken(user._id.toString());
+
+    // ✅ Return clean response
+    res.json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Login Error:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 🧩 Get User Data (Protected)
+export const getUserData = async (req, res) => {
+  try {
+    res.json({ success: true, user: req.user });
+  } catch (error) {
+    console.error("GetUserData Error:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// 🧩 Get All Available Cars
 export const getCars = async (req, res) => {
   try {
-    const cars=await Car.find({isAvailable:true})
-    res.json({success:true,cars})
+    const cars = await Car.find({ isAvailable: true });
+    res.json({ success: true, cars });
   } catch (error) {
-    console.error(error.message);
+    console.error("GetCars Error:", error.message);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };

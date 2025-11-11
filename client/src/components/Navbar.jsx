@@ -6,26 +6,28 @@ import toast from 'react-hot-toast'
 
 const Navbar = () => {
 
-  const {setShowLogin,user,logout,isOwner, axiox, setIsOwner}=useAppContext()
+  const {setShowLogin,user,logout,isOwner, axios, setIsOwner}=useAppContext()
 
 
   const location = useLocation() // Correct way to get current route
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
-  const changeRole=async()=>{
-    try{
-      const {data}=await axios.post('/api/owner/change-role')
-      if (data.success){
-        setIsOwner(true)
-        toast.success(data.message)
-      }else{
-        toast.error(error.message)
+  const changeRole = async () => {
+    try {
+      const { data } = await axios.post("/api/owner/change-role");
+      if (data.success) {
+        setIsOwner(true);
+        toast.success(data.message);
+        navigate("/owner");
+      } else {
+        toast.error(data.message);
       }
-    }catch(error){
-
+    } catch (error) {
+      toast.error(error.message);
     }
-  }
+  };
+
 
   return (
     <div

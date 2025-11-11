@@ -5,68 +5,73 @@ import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 
 const Cars = () => {
+  const [searchParams] = useSearchParams();
+  const pickupLocation = searchParams.get("pickupLocation");
+  const pickupDate = searchParams.get("pickupDate");
+  const returnDate = searchParams.get("returnDate");
 
-  const [searchParams]= useSearchParams()
-  const pickupLocation=searchParams.get('pickupLocation')
-  const pickupDate=searchParams.get('pickupDate')
-  const returnDate=searchParams.get('returnDate')
+  const { cars, axios } = useAppContext();
 
-  const {cars, axios} = useAppContext()
-
-  const [input, setInput]=useState('')
-
-  const isSearchData = pickupLocation && pickupDate && returnDate
-  
-
-  const applyFilter = async()=>{
-    if(input === ''){
-      setFilteredCars(cars)
-      return null
-    }
-
-    const filtered = cars.slice.filter()((car)=>{
-      return car.brand.toLowerCase().includes(input.toLowerCase())
-      || model.brand.toLowerCase().includes(input.toLowerCase())
-      || category.brand.toLowerCase().includes(input.toLowerCase())
-      || transmission.brand.toLowerCase().includes(input.toLowerCase())
-    })
-
-    setFilteredCars(filtered)
-
-  }
-
-  const searchCarAvailablity = async ()=>{
-    const {data}= await axios.post('/api/bookings/check-availability',{location: pickupLocation,pickupDate,returnDate})
-    if (data.success){
-      setFilteredCars(data.availableCars)
-      if (data.availableCars.length===0){
-        toast('No cars available')
-
-      }
-      return null
-    }
-  }
-
-  useEffect (()=>{
-    isSearchData && searchCarAvailablity()
-  }, [input , cars])
-
-  useEffect(()=>{
-    cars.length >0 && !isSearchData && applyFilter
-  }
-  )
-
+  const [input, setInput] = useState("");
+  const [filteredCars, setFilteredCars] = useState([]);
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All");
 
-  // ✅ Filter cars by search & city
-  const filteredCars = dummyCarData.filter((car) => {
-    const matchesSearch =
-      car.brand.toLowerCase().includes(search.toLowerCase()) ||
-      car.model.toLowerCase().includes(search.toLowerCase());
-    const matchesCity = city === "All" || car.location === city;
-    return matchesSearch && matchesCity;
-  });
+  const isSearchData = pickupLocation && pickupDate && returnDate;
+
+  // ✅ Filter cars by search input
+  const applyFilter = () => {
+    if (!cars || cars.length === 0) return;
+    if (input === "") {
+      setFilteredCars(cars);
+      return;
+    }
+
+    const filtered = cars.filter((car) => {
+      return (
+        car.brand.toLowerCase().includes(input.toLowerCase()) ||
+        car.model.toLowerCase().includes(input.toLowerCase()) ||
+        car.category.toLowerCase().includes(input.toLowerCase()) ||
+        car.transmission.toLowerCase().includes(input.toLowerCase())
+      );
+    });
+    setFilteredCars(filtered);
+  };
+
+  // ✅ Check car availability
+  const searchCarAvailability = async () => {
+    try {
+      const { data } = await axios.post("/api/bookings/check-availability", {
+        location: pickupLocation,
+        pickupDate,
+        returnDate,
+      });
+      if (data.success) {
+        setFilteredCars(data.availableCars);
+        if (data.availableCars.length === 0) toast("No cars available");
+      }
+    } catch (err) {
+      toast.error("Error checking availability");
+    }
+  };
+
+  useEffect(() => {
+    if (isSearchData) searchCarAvailability();
+  }, [cars]);
+
+  useEffect(() => {
+    if (cars.length > 0 && !isSearchData) applyFilter();
+  }, [input, cars]);
+
+  // ✅ Local filtering (backup if API fails)
+  const visibleCars =
+    filteredCars.length > 0 ? filteredCars : dummyCarData.filter((car) => {
+      const matchesSearch =
+        car.brand.toLowerCase().includes(search.toLowerCase()) ||
+        car.model.toLowerCase().includes(search.toLowerCase());
+      const matchesCity = city === "All" || car.location === city;
+      return matchesSearch && matchesCity;
+    });
 
   return (
     <div className="px-6 md:px-12 lg:px-24 xl:px-32 mt-16 mb-16">
@@ -97,9 +102,9 @@ const Cars = () => {
       </div>
 
       {/* 🚗 Cars Grid */}
-      {filteredCars.length > 0 ? (
+      {visibleCars.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCars.map((car) => (
+          {visibleCars.map((car) => (
             <div
               key={car._id || car.id}
               className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all"

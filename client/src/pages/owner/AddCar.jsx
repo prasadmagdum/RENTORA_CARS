@@ -14,7 +14,7 @@ const AddCar = () => {
     brand:'',
     model:'',
     year:0,
-    pricePreDay:0,
+    pricePerDay:0,
     category:'',
     transmission:'',
     fuel_type:'',
@@ -36,7 +36,7 @@ const AddCar = () => {
       formData.append('image', image)
       formData.append('carData', JSON.stringify(car))
 
-      const {data}=await axios.post('/api/owner/add-car', formData)
+      const {data}=await axios.post('/api/owners/add-car', formData)
 
       if(data.success){
         toast.success(data.message)
@@ -45,7 +45,7 @@ const AddCar = () => {
           brand:'',
           model:'',
           year:0,
-          pricePreDay:0,
+          pricePerDay:0,
           category:'',
           transmission:'',
           fuel_type:'',
@@ -93,7 +93,7 @@ const AddCar = () => {
           </div>
           <div className='flex flex-col w-full'>
             <label>Model</label>
-            <input type="text" placeholder="e.g. X%, E-Class, M4..." required className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none' value={car.model} onChange={e=> setCar({...car,model:e.target.value})}/>
+            <input type="text" placeholder="e.g. X5, E-Class, M4..." required className='px-3 py-2 mt-1 border border-borderColor rounded-md outline-none' value={car.model} onChange={e=> setCar({...car,model:e.target.value})}/>
 
           </div>
           

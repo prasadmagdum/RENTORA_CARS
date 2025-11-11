@@ -3,8 +3,10 @@
 
 // Function to check the Availiblity
 
+import Booking from "../models/Booking.js";
+
 const checkAvailability = async (car , pickupDate , returnDate) => {
-    const booking = await Booking.findById({
+    const booking = await Booking.find({
         car,
         pickupDate: { $lt: returnDate },
         returnDate: { $gt: pickupDate },
@@ -39,12 +41,13 @@ export const createBooking = async (req, res) => {
     try {
         const { _id } = req.user; 
         const { carId, pickupDate, returnDate } = req.body;  
-        const isAvailable = await checkAvailability (car,pickupDate, returnDate);
+        const isAvailable = await checkAvailability (carId,pickupDate, returnDate);
         if (!isAvailable) {
             return res.json({ success: false, message: "Car not available" });
         }
 
-        const car = await Car.findById(car);
+        const car = await Car.findById(carId);
+        
 
         // Calculate price (Assuming price is per day)
         const picked = new Date(pickupDate);

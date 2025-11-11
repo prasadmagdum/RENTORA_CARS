@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Routes
 app.get("/", (req, res) => res.send("Server is running"));
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/owners", ownerRoutes);
 app.use("/api/bookings", bookingRoutes);
 

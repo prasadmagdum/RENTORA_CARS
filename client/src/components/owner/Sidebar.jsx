@@ -1,31 +1,34 @@
 import React, { useState } from "react";
-import {  ownerMenuLinks, assets } from "../../assets/assets";
+import { ownerMenuLinks, assets } from "../../assets/assets";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
 
 const Sidebar = () => {
-  const {user , axios , fetchUser} = useAppContext();
+  const { user, axios, fetchUser } = useAppContext();
   const location = useLocation();
   const [image, setImage] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const updateImage = async () => {
-    try{
-      const formData = new FormData()
-      formData.append('image', image)
-      const{data} = await axios.post('/api/owner/update-image', formData)
+    if (!image) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", image);
+      const { data } = await axios.post("/api/owners/update-image", formData);
 
-      if(data.success){
-        fetchUser()
-        toast.success(data.message)
-        setImage('')
-      }else{
-        toast.error(data.message)
-
+      if (data.success) {
+        fetchUser();
+        toast.success(data.message);
+        setImage("");
+      } else {
+        toast.error(data.message);
       }
-    }catch(error){
-      toast.error(error.message)
-
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -60,10 +63,15 @@ const Sidebar = () => {
       {image && (
         <button
           onClick={updateImage}
-          className="absolute top-0 right-0 flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-sm rounded-md cursor-pointer"
+          disabled={uploading}
+          className={`absolute top-0 right-0 flex items-center gap-1 px-2 py-1 rounded-md text-sm ${
+            uploading
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-primary/10 text-primary cursor-pointer"
+          }`}
         >
-          Save
-          <img src={assets.check_icon} width={13} alt="check" />
+          {uploading ? "Uploading..." : "Save"}
+          {!uploading && <img src={assets.check_icon} width={13} alt="check" />}
         </button>
       )}
 
@@ -82,9 +90,7 @@ const Sidebar = () => {
           >
             <img
               src={
-                link.path === location.pathname
-                  ? link.coloredIcon
-                  : link.icon
+                link.path === location.pathname ? link.coloredIcon : link.icon
               }
               alt={link.name}
               className="w-5 h-5"
