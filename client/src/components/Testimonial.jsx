@@ -5,22 +5,22 @@ import Title from './Title'
 const Testimonial = () => {
   const testimonials = [
     {
-      name: "Emma Rodriguez",
-      location: "Barcelona, Spain",
+      name: "riya",
+      location: "Pune",
       image: assets.testimonial_image_1,
       testimonial:
         "Exceptional service and attention to detail. Everything was handled professionally and efficiently from start to finish. Highly recommended!",
     },
     {
-      name: "Liam Smith",
-      location: "London, UK",
+      name: "neha",
+      location: "kolhapur",
       image: assets.testimonial_image_2,
       testimonial:
         "A seamless experience! Booking was easy, and the quality exceeded my expectations. I’ll definitely book again.",
     },
     {
-      name: "Sophia Lee",
-      location: "New York, USA",
+      name: "shree",
+      location: "kolhapur",
       image: assets.testimonial_image_1,
       testimonial:
         "Fantastic service and luxury experience. Every detail was taken care of, making my trip stress-free and enjoyable.",
@@ -30,7 +30,7 @@ const Testimonial = () => {
   return (
     <div className="flex flex-col items-center py-18 px-6 md:px-16 lg:px-24 xl:px-44">
       <Title
-        title="What Our Customers Say"
+        title="Customers Say"
         subtitle="Discover why discerning travelers choose StayVenture for their luxury accommodations around the world."
       />
 

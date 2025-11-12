@@ -15,13 +15,11 @@ const Banner = () => {
                 We take  care of insurance, maintenance, and bookings, ensuring a hassle-free experience.
             </p>
 
-            <button className='bg-black text-white px-6 py-2 rounded-md mt-6 hover:bg-gray-800 transition-colors duration-300'>
-                List Your Car
-            </button>
+            
 
         </div>
 
-        <img src={assets.banner_car_image} alt="car" className='max-h-45 mt-10'/>
+        <img src={assets.Scorpio} alt="car" className='max-h-45 mt-10'/>
 
 
     </div>

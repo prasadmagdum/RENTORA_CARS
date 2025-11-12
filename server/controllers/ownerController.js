@@ -4,7 +4,7 @@ import fs from 'fs';
 import imagekit from "../configs/imagekit.js";
 import Booking from '../models/Booking.js';
 
-
+// Change user role to Owner
 export const changeRoleToOwner = async (req, res) => {
   try {
     const { _id } = req.user;
@@ -18,7 +18,7 @@ export const changeRoleToOwner = async (req, res) => {
 
 // Add car
 export const addCar = async (req, res) => {
-   try {
+  try {
     const { _id } = req.user;
     const carData = JSON.parse(req.body.carData);
     const imageFile = req.file;
@@ -27,7 +27,7 @@ export const addCar = async (req, res) => {
       return res.status(400).json({ success: false, message: "Image file is required" });
     }
 
-    // Read image and upload to ImageKit
+    // Upload to ImageKit
     const fileBuffer = fs.readFileSync(imageFile.path);
     const uploadResponse = await imagekit.upload({
       file: fileBuffer,
@@ -35,7 +35,6 @@ export const addCar = async (req, res) => {
       folder: "/cars/",
     });
 
-    // Generate optimized URL
     const optimizedImageUrl = imagekit.url({
       path: uploadResponse.filePath,
       transformation: [
@@ -61,15 +60,12 @@ export const addCar = async (req, res) => {
     console.log("Error in addCar:", error);
     res.json({ success: false, message: "Server Error" });
   }
-
 };
 
-
-// API to list Owner cars
-
-export const getOwnerCars =   async (req, res) => {
+// List Owner Cars
+export const getOwnerCars = async (req, res) => {
   try {
-    const{ _id } = req.user;
+    const { _id } = req.user;
     const cars = await Car.find({ owner: _id });
     res.json({ success: true, cars });
   } catch (error) {
@@ -78,79 +74,105 @@ export const getOwnerCars =   async (req, res) => {
   }
 };
 
-// API to  Toggle car availability
+// ✅ Toggle Car Availability (Fixed)
 export const toggleCarAvailability = async (req, res) => {
   try {
-    const {_id } = req.user;
+    const { _id } = req.user;
     const { carId } = req.body;
+
     const car = await Car.findById(carId);
+    if (!car) {
+      return res.status(404).json({ success: false, message: "Car not found" });
+    }
+
     if (car.owner.toString() !== _id.toString()) {
-      return res.json({ success: false, message: "Car not found" });
-    }       
+      return res.status(403).json({ success: false, message: "Unauthorized access" });
+    }
+
     car.isAvailable = !car.isAvailable;
-    await car.save();   
+    await car.save();
+
     res.json({ success: true, message: "Car availability updated", data: car });
   } catch (error) {
-    console.log(error.message);
+    console.log("Error in toggleCarAvailability:", error.message);
     res.json({ success: false, message: "Server Error" });
   }
 };
 
-// API to Delete a car
+// ✅ Delete Car (Fixed)
 export const deleteCar = async (req, res) => {
   try {
     const { _id } = req.user;
     const { carId } = req.body;
-    const car = await Car.findByIdAndDelete(carId);
+
+    const car = await Car.findById(carId);
+    if (!car) {
+      return res.status(404).json({ success: false, message: "Car not found" });
+    }
 
     if (car.owner.toString() !== _id.toString()) {
-      return res.json({ success: false, message: "Car not found" });
-    }       
-    car.owner=null
-    car.isAvailable=false
-    await car.save();   
+      return res.status(403).json({ success: false, message: "Unauthorized access" });
+    }
+
+    // Delete the car document from DB (hard delete)
+    await Car.findByIdAndDelete(carId);
+
     res.json({ success: true, message: "Car deleted successfully" });
   } catch (error) {
-    console.log(error.message);
+    console.log("Error in deleteCar:", error.message);
     res.json({ success: false, message: "Server Error" });
   }
 };
 
-// API to get dashboard data 
-
+// Get Dashboard Data
 export const getDashboardData = async (req, res) => {
   try {
-    const { _id , role} = req.user; 
-    if (role !== 'owner') {
+    const { _id, role } = req.user;
+
+    if (role !== "owner") {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
-    const cars = await Car.find({ owner: _id });
-    const bookings = await Booking.find({ owner: _id }).populate('car').sort({ createdAt: -1 });
-    
-    const  pendingBookings = await Booking.find({ owner: _id, status: 'pending' });
-    const  confirmedBookings = await Booking.find({ owner: _id, status: 'confirmed' });
 
-    // calculate monthlyRevenue from confirmed bookings
-    const monthlyRevenue = bookings.slice().filter(booking => booking.status === 'confirmed').reduce((acc , booking) => acc + booking.price , 0);
+    const cars = await Car.find({ owner: _id });
+    const bookings = await Booking.find({ owner: _id })
+      .populate("car")
+      .sort({ createdAt: -1 });
+
+    const pendingBooking = bookings.filter(b => b.status === "pending");
+    const confirmedBooking = bookings.filter(b => b.status === "confirmed");
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const monthlyRevenueBookings = await Booking.find({
+      owner: _id,
+      status: "confirmed",
+      updatedAt: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    const monthlyRevenue = monthlyRevenueBookings.reduce(
+      (sum, b) => sum + (b.price || 0),
+      0
+    );
 
     const dashboardData = {
       totalCars: cars.length,
-      totalBookings: bookings.length,
-      pendingBookings: pendingBookings.length,
-      completedBookings: confirmedBookings.length,
-      recentBookings: bookings.slice(0, 3),
+      totalBooking: bookings.length,
+      pendingBooking: pendingBooking.length,
+      completeBookings: confirmedBooking.length,
+      recentBooking: bookings.slice(0, 3),
       monthlyRevenue,
     };
+
     res.json({ success: true, data: dashboardData });
-
-
   } catch (error) {
-    console.log(error.message);
+    console.log("Dashboard error:", error.message);
     res.json({ success: false, message: "Server Error" });
-  }   
+  }
 };
 
-// API to List Owner Bookings
+// Get Owner Bookings
 export const getOwnerBookings = async (req, res) => {
   try {
     if (req.user.role !== "owner") {
@@ -169,11 +191,8 @@ export const getOwnerBookings = async (req, res) => {
   }
 };
 
-
-// API to update user profile
-
+// Update user image
 export const updateuserImage = async (req, res) => {
-
   try {
     const { _id } = req.user;
     const imageFile = req.file;
@@ -184,8 +203,8 @@ export const updateuserImage = async (req, res) => {
       fileName: imageFile.originalname,
       folder: "/users/",
     });
-    // Generate optimized URL
-    var optimizedImageUrl = imagekit.url({
+
+    const optimizedImageUrl = imagekit.url({
       path: response.filePath,
       transformation: [
         { width: "400" },
@@ -194,16 +213,15 @@ export const updateuserImage = async (req, res) => {
       ],
     });
 
-    const image = optimizedImageUrl;
+    await User.findByIdAndUpdate(_id, { image: optimizedImageUrl });
 
-    await User.findByIdAndUpdate(_id, { image });
-
-    res.json({ success: true, message: "Profile image updated", data: { image } });
-
+    res.json({
+      success: true,
+      message: "Profile image updated",
+      data: { image: optimizedImageUrl },
+    });
   } catch (error) {
-    console.log(error.message);
+    console.log("Error in updateuserImage:", error.message);
     res.json({ success: false, message: "Server Error" });
-  } 
+  }
 };
-  
-

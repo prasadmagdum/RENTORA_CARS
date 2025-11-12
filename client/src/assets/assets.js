@@ -40,6 +40,10 @@ import car_image1 from "./car_image1.png"
 import car_image2 from "./car_image2.png"
 import car_image3 from "./car_image3.png"
 import car_image4 from "./car_image4.png"
+import Defender from "./Defender.png"
+import grandvitara from "./grandvitara.png"
+import Scorpio from "./Scorpio.png"
+import swift from "./swift.png"
 
 
 import rentora from "./rentora.png"
@@ -90,7 +94,12 @@ export const assets = {
     user_profile,
     car_image2,
     car_image3,
-    car_image4
+    car_image4,
+    Defender,
+    grandvitara,
+    Scorpio,
+    swift
+    
 }
 
 export const menuLinks = [

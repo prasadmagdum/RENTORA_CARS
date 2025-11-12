@@ -37,7 +37,7 @@ const Navbar = () => {
     >
       <div className="flex items-center justify-between w-full">
         <Link to="/">
-          <img src={assets.logo} alt="rentora_logo" className="h-20 w-auto rounded-xl shadow-lg transition-transform duration-300 hover:scale-105" />
+          <img src={assets.logo} alt="rentora_logo" className="h-7 scale-230" />
 
         </Link>
 

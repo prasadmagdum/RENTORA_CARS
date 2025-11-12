@@ -12,33 +12,24 @@ const Cars = () => {
 
   const { cars, axios } = useAppContext();
 
-  const [input, setInput] = useState("");
-  const [filteredCars, setFilteredCars] = useState([]);
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All");
+  const [filteredCars, setFilteredCars] = useState([]);
 
   const isSearchData = pickupLocation && pickupDate && returnDate;
 
-  // ✅ Filter cars by search input
+  // ✅ Filter cars locally
   const applyFilter = () => {
-    if (!cars || cars.length === 0) return;
-    if (input === "") {
-      setFilteredCars(cars);
-      return;
-    }
-
-    const filtered = cars.filter((car) => {
-      return (
-        car.brand.toLowerCase().includes(input.toLowerCase()) ||
-        car.model.toLowerCase().includes(input.toLowerCase()) ||
-        car.category.toLowerCase().includes(input.toLowerCase()) ||
-        car.transmission.toLowerCase().includes(input.toLowerCase())
-      );
-    });
+    if (!cars?.length) return;
+    const filtered = cars.filter((car) =>
+      [car.brand, car.model, car.category, car.transmission].some((field) =>
+        field?.toLowerCase().includes(search.toLowerCase())
+      )
+    );
     setFilteredCars(filtered);
   };
 
-  // ✅ Check car availability
+  // ✅ Search availability (API)
   const searchCarAvailability = async () => {
     try {
       const { data } = await axios.post("/api/bookings/check-availability", {
@@ -48,7 +39,8 @@ const Cars = () => {
       });
       if (data.success) {
         setFilteredCars(data.availableCars);
-        if (data.availableCars.length === 0) toast("No cars available");
+        if (data.availableCars.length === 0)
+          toast("No cars available for selected dates");
       }
     } catch (err) {
       toast.error("Error checking availability");
@@ -61,17 +53,19 @@ const Cars = () => {
 
   useEffect(() => {
     if (cars.length > 0 && !isSearchData) applyFilter();
-  }, [input, cars]);
+  }, [search, cars]);
 
-  // ✅ Local filtering (backup if API fails)
+  // ✅ Fallback data
   const visibleCars =
-    filteredCars.length > 0 ? filteredCars : dummyCarData.filter((car) => {
-      const matchesSearch =
-        car.brand.toLowerCase().includes(search.toLowerCase()) ||
-        car.model.toLowerCase().includes(search.toLowerCase());
-      const matchesCity = city === "All" || car.location === city;
-      return matchesSearch && matchesCity;
-    });
+    filteredCars.length > 0
+      ? filteredCars
+      : dummyCarData.filter((car) => {
+          const matchesSearch =
+            car.brand.toLowerCase().includes(search.toLowerCase()) ||
+            car.model.toLowerCase().includes(search.toLowerCase());
+          const matchesCity = city === "All" || car.location === city;
+          return matchesSearch && matchesCity;
+        });
 
   return (
     <div className="px-6 md:px-12 lg:px-24 xl:px-32 mt-16 mb-16">
@@ -81,7 +75,7 @@ const Cars = () => {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
         <input
           type="text"
-          placeholder="Search by brand or model..."
+          placeholder="Search by brand, model, or type..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
@@ -107,16 +101,17 @@ const Cars = () => {
           {visibleCars.map((car) => (
             <div
               key={car._id || car.id}
-              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all"
+              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300"
             >
               <img
-                src={car.image}
+                src={car.image || assets.default_car}
+                onError={(e) => (e.target.src = assets.default_car)}
                 alt={`${car.brand} ${car.model}`}
-                className="w-full h-56 object-cover"
+                className="w-full h-56 object-cover transform hover:scale-105 transition-transform duration-300"
               />
 
               <div className="p-5">
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-xl font-semibold text-gray-900">
                   {car.brand} {car.model}
                 </h2>
                 <p className="text-gray-500 text-sm mb-3">
