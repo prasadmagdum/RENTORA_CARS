@@ -17,8 +17,7 @@ Database: MongoDB
 Auth: JWT Authentication
 Media: ImageKit
 
-Run the project
-# In two terminals
+Run the project: In Terminal:
 cd backend && npm start
 cd frontend && npm run dev
 
