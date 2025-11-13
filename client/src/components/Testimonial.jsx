@@ -1,55 +1,55 @@
-import React from 'react'
-import { assets } from '../assets/assets'
-import Title from './Title'
+import React from 'react';
+import { assets } from '../assets/assets';
+import Title from './Title';
 
 const Testimonial = () => {
   const testimonials = [
     {
-      name: "riya",
+      name: "Riya",
       location: "Pune",
       image: assets.testimonial_image_1,
       testimonial:
         "Exceptional service and attention to detail. Everything was handled professionally and efficiently from start to finish. Highly recommended!",
     },
     {
-      name: "neha",
-      location: "kolhapur",
+      name: "Neha",
+      location: "Kolhapur",
       image: assets.testimonial_image_2,
       testimonial:
         "A seamless experience! Booking was easy, and the quality exceeded my expectations. I’ll definitely book again.",
     },
     {
-      name: "shree",
-      location: "kolhapur",
+      name: "Shree",
+      location: "Kolhapur",
       image: assets.testimonial_image_1,
       testimonial:
         "Fantastic service and luxury experience. Every detail was taken care of, making my trip stress-free and enjoyable.",
     },
-  ]
+  ];
 
   return (
-    <div className="flex flex-col items-center py-18 px-6 md:px-16 lg:px-24 xl:px-44">
+    <div className="flex flex-col items-center py-24 px-6 md:px-16 lg:px-24 xl:px-44 bg-gray-50">
       <Title
         title="Customers Say"
         subtitle="Discover why discerning travelers choose StayVenture for their luxury accommodations around the world."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-18">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 w-full">
         {testimonials.map((testimonial, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-xl shadow-lg hover:-translate-y-1 transition-transform duration-500"
+            className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-transform duration-500"
           >
             {/* Profile */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <img
-                className="w-12 h-12 rounded-full"
+                className="w-14 h-14 rounded-full object-cover"
                 src={testimonial.image}
                 alt={testimonial.name}
               />
               <div>
-                <p className="text-lg font-semibold">{testimonial.name}</p>
-                <p className="text-gray-500">{testimonial.location}</p>
+                <p className="text-lg font-semibold text-gray-900">{testimonial.name}</p>
+                <p className="text-gray-500 text-sm">{testimonial.location}</p>
               </div>
             </div>
 
@@ -68,14 +68,14 @@ const Testimonial = () => {
             </div>
 
             {/* Testimonial text */}
-            <p className="text-gray-600 mt-4 font-light">
+            <p className="text-gray-700 mt-4 text-sm md:text-base leading-relaxed">
               "{testimonial.testimonial}"
             </p>
           </div>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Testimonial
+export default Testimonial;

@@ -119,7 +119,7 @@ const CarDetails = () => {
         {/* Right — Booking Box */}
         <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 flex flex-col justify-between h-fit">
           <div>
-            <h2 className="text-2xl font-semibold">${car.pricePerDay}</h2>
+            <h2 className="text-2xl font-semibold"> ₹{car.pricePerDay}</h2>
             <p className="text-gray-400 text-sm mb-6">per day</p>
 
             <div className="space-y-4">

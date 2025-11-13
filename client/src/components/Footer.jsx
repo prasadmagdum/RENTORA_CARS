@@ -45,10 +45,10 @@ const Footer = () => {
                  <div>
                     <h2 className='text-base font-medium text-gray-800 uppercase'>Contact</h2>
                     <ul className='mt-3 flex flex-col gap-1.5'>
-                        <li><a href="#">1234 Luxury Drive</a></li>
-                        <li><a href="#"> abcd </a></li>
-                        <li><a href="#">645465465465</a></li>
-                        <li><a href="#">ie@.com</a></li>
+                        <li><a href="#">1234 Use Rentora  & Travel </a></li>
+                        <li><a href="#"> Prasad </a></li>
+                        <li><a href="#">0000000000</a></li>
+                        <li><a href="#">prasadmagdum307@gmail.com</a></li>
                         
                     </ul>
                 </div>
@@ -59,7 +59,7 @@ const Footer = () => {
                 
             </div>
             <div className='flex flex-col md:flex-row gap-2 items-center justify-between py-5'>
-                <p>© {new Date().getFullYear()}  All rights reserved.</p>
+                <p>© {new Date().getFullYear()}  All rights reserved Developed by prasad magdum.</p>
                 <ul className='flex items-center gap-4'>
                     <li><a href="#">Privacy</a><span> | </span></li>
                     <li><a href="#">Terms</a><span> | </span></li>

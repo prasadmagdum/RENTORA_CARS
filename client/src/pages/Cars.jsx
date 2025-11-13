@@ -15,51 +15,63 @@ const Cars = () => {
   const [search, setSearch] = useState("");
   const [city, setCity] = useState("All");
   const [filteredCars, setFilteredCars] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const isSearchData = pickupLocation && pickupDate && returnDate;
 
   // ✅ Filter cars locally
-  const applyFilter = () => {
-    if (!cars?.length) return;
-    const filtered = cars.filter((car) =>
-      [car.brand, car.model, car.category, car.transmission].some((field) =>
-        field?.toLowerCase().includes(search.toLowerCase())
-      )
-    );
+  const applyFilter = (sourceCars = []) => {
+    if (!sourceCars?.length) return;
+
+    const filtered = sourceCars.filter((car) => {
+      const matchesSearch = [car.brand, car.model, car.category, car.transmission].some(
+        (field) => field?.toLowerCase().includes(search.toLowerCase())
+      );
+      const matchesCity = city === "All" || car.location === city;
+      return matchesSearch && matchesCity;
+    });
+
     setFilteredCars(filtered);
   };
 
   // ✅ Search availability (API)
   const searchCarAvailability = async () => {
+    if (!pickupLocation || !pickupDate || !returnDate) return;
+
     try {
+      setLoading(true);
       const { data } = await axios.post("/api/bookings/check-availability", {
         location: pickupLocation,
         pickupDate,
         returnDate,
       });
       if (data.success) {
-        setFilteredCars(data.availableCars);
-        if (data.availableCars.length === 0)
-          toast("No cars available for selected dates");
+        setFilteredCars(data.availableCars || []);
+        if (!data.availableCars?.length) toast("No cars available for selected dates");
+      } else {
+        toast.error(data.message || "No cars available");
       }
     } catch (err) {
       toast.error("Error checking availability");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Fetch / Filter when cars or search params change
   useEffect(() => {
-    if (isSearchData) searchCarAvailability();
-  }, [cars]);
+    if (isSearchData) {
+      searchCarAvailability();
+    } else {
+      applyFilter(cars || []);
+    }
+  }, [cars, search, city, pickupLocation, pickupDate, returnDate]);
 
-  useEffect(() => {
-    if (cars.length > 0 && !isSearchData) applyFilter();
-  }, [search, cars]);
-
-  // ✅ Fallback data
+  // ✅ Determine visible cars
   const visibleCars =
-    filteredCars.length > 0
+    filteredCars?.length > 0
       ? filteredCars
-      : dummyCarData.filter((car) => {
+      : (cars || dummyCarData).filter((car) => {
           const matchesSearch =
             car.brand.toLowerCase().includes(search.toLowerCase()) ||
             car.model.toLowerCase().includes(search.toLowerCase());
@@ -96,7 +108,9 @@ const Cars = () => {
       </div>
 
       {/* 🚗 Cars Grid */}
-      {visibleCars.length > 0 ? (
+      {loading ? (
+        <p className="text-center mt-10 text-gray-500 text-lg">Checking availability...</p>
+      ) : visibleCars?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {visibleCars.map((car) => (
             <div
@@ -131,7 +145,7 @@ const Cars = () => {
 
                 <div className="flex items-center justify-between">
                   <p className="text-lg font-semibold text-gray-800">
-                    ${car.pricePerDay} / day
+                    ₹{car.pricePerDay} / day
                   </p>
                   <Link to={`/car-details/${car._id || car.id}`}>
                     <button
@@ -147,9 +161,7 @@ const Cars = () => {
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500 text-lg mt-10">
-          No cars found matching your search.
-        </p>
+        <p className="text-center text-gray-500 text-lg mt-10">No cars found matching your search.</p>
       )}
     </div>
   );

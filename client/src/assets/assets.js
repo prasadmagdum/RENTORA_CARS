@@ -50,7 +50,7 @@ import rentora from "./rentora.png"
 
 
 
-export const cityList = ['New York', 'Los Angeles', 'Houston', 'Chicago']
+export const cityList = ['Pune', 'Kolhapur', 'Sangali', 'Kokan']
 
 export const assets = {
     logo: rentora,
