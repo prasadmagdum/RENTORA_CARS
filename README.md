@@ -1,0 +1,30 @@
+🚗 Rentora-A Smart Car Rental Platform
+   Rentora is a modern web application that connects car owners and renters, making car rentals fast, easy, and affordable.
+
+ Features
+ Secure user authentication (JWT)
+ Add, edit, and manage cars (for owners)
+ Rent and manage bookings (for users)
+ Search & filter cars by location, price, and type
+ Owner & admin dashboards
+ Real-time notifications and smooth UI
+Fully responsive design
+
+Tech Stack
+Frontend: React.js, Tailwind CSS
+Backend: Node.js, Express.js
+Database: MongoDB
+Auth: JWT Authentication
+Media: ImageKit
+
+Run the project
+# In two terminals
+cd backend && npm start
+cd frontend && npm run dev
+
+Purpose:Rentora aims to provide a seamless car rental experience, connecting vehicle owners with renters through a user-friendly and secure platform.
+
+Author
+Developed by: Prasad Magdum
+LinkedIn:https://www.linkedin.com/in/pmagdum/
+Gmail:prasadmagdum307@gmail.com
