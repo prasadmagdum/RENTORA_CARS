@@ -61,10 +61,10 @@ const Navbar = () => {
           ))}
 
 
-          <div className='hidden lg:flex items-center gap-2 border border-borderColor px-3 rounded-full max-w-56'>
+          {/* <div className='hidden lg:flex items-center gap-2 border border-borderColor px-3 rounded-full max-w-56'>
             <input type="text" className="py-1.5 w-full bag-transparent outline-none placeholder-gray-500" placeholder="Search products" />
             <img src={assets.search_icon} alt="search" />
-          </div>
+          </div> */}
 
           <div className='flex max-sm:flex-col items-start sm:items-center gap-6'>
             <button onClick={()=>isOwner? navigate('/owner'): changeRole()} className="cursor-pointer">Dashboard</button>

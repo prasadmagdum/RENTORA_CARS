@@ -47,7 +47,7 @@ const Cars = () => {
       });
       if (data.success) {
         setFilteredCars(data.availableCars || []);
-        if (!data.availableCars?.length) toast("No cars available for selected dates");
+        if (!data.availableCars?.length) toast("cars available for selected dates");
       } else {
         toast.error(data.message || "No cars available");
       }
