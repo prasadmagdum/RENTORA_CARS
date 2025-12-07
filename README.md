@@ -22,7 +22,6 @@ cd backend && npm start
 cd frontend && npm run dev
 
 Purpose:Rentora aims to provide a seamless car rental experience, connecting vehicle owners with renters through a user-friendly and secure platform.
-Developed by: Prasad Magdum
 LinkedIn:https://www.linkedin.com/in/pmagdum/
 Gmail:prasadmagdum307@gmail.com
 
