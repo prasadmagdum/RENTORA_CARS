@@ -77,5 +77,4 @@ const Testimonial = () => {
     </div>
   );
 };
-
 export default Testimonial;
