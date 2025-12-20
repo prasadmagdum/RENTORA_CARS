@@ -6,9 +6,20 @@ import toast from "react-hot-toast";
 
 const CarDetails = () => {
   const { id } = useParams();
-  const { cars, axios, pickupDate, setPickupDate, returnDate, setReturnDate } = useAppContext();
+  const {
+    cars,
+    axios,
+    pickupDate,
+    setPickupDate,
+    returnDate,
+    setReturnDate,
+  } = useAppContext();
+
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
+
+  // ✅ Today's date (YYYY-MM-DD)
+  const today = new Date().toISOString().split("T")[0];
 
   // Fetch car by ID
   useEffect(() => {
@@ -16,12 +27,29 @@ const CarDetails = () => {
     setCar(foundCar);
   }, [cars, id]);
 
+  // ✅ Auto-clear invalid return date
+  useEffect(() => {
+    if (pickupDate && returnDate && returnDate < pickupDate) {
+      setReturnDate("");
+    }
+  }, [pickupDate]);
+
   // Handle booking submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!pickupDate || !returnDate) {
       toast.error("Please select pickup and return dates");
+      return;
+    }
+
+    if (pickupDate < today) {
+      toast.error("Pickup date cannot be in the past");
+      return;
+    }
+
+    if (returnDate < pickupDate) {
+      toast.error("Return date must be after pickup date");
       return;
     }
 
@@ -34,7 +62,7 @@ const CarDetails = () => {
 
       if (data.success) {
         toast.success(data.message);
-        navigate("/my-bookings"); // redirect to bookings page
+        navigate("/my-bookings");
       } else {
         toast.error(data.message);
       }
@@ -111,40 +139,45 @@ const CarDetails = () => {
             {/* Description */}
             <div>
               <h2 className="text-xl font-medium mb-2">Description</h2>
-              <p className="text-gray-500 leading-relaxed">{car.description}</p>
+              <p className="text-gray-500 leading-relaxed">
+                {car.description}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Right — Booking Box */}
-        <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 flex flex-col justify-between h-fit">
-          <div>
-            <h2 className="text-2xl font-semibold"> ₹{car.pricePerDay}</h2>
-            <p className="text-gray-400 text-sm mb-6">per day</p>
+        <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 h-fit">
+          <h2 className="text-2xl font-semibold">₹ {car.pricePerDay}</h2>
+          <p className="text-gray-400 text-sm mb-6">per day</p>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Pickup Date
-                </label>
-                <input
-                  value={pickupDate}
-                  onChange={(e) => setPickupDate(e.target.value)}
-                  type="date"
-                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Return Date
-                </label>
-                <input
-                  value={returnDate}
-                  onChange={(e) => setReturnDate(e.target.value)}
-                  type="date"
-                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
-                />
-              </div>
+          <div className="space-y-4">
+            {/* Pickup Date */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">
+                Pickup Date
+              </label>
+              <input
+                type="date"
+                value={pickupDate}
+                min={today}   // ✅ no past dates
+                onChange={(e) => setPickupDate(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
+              />
+            </div>
+
+            {/* Return Date */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">
+                Return Date
+              </label>
+              <input
+                type="date"
+                value={returnDate}
+                min={pickupDate || today}   // ✅ return ≥ pickup
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-black"
+              />
             </div>
           </div>
 
