@@ -67,7 +67,7 @@ const ManageBookings = () => {
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={car.image || '/default-car.png'}
-                      alt={`{car.brand} {car.model}`}
+                      alt={`${car.brand} ${car.model}`}
                       className="h-12 w-12 aspect-square rounded-md object-cover"
                       onError={(e) => (e.target.src = '/default-car.png')}
                     />
