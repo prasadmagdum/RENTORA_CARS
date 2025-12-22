@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { assets, cityList } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
 
 const Hero = () => {
-  const { pickupDate, setPickupDate, returnDate, setReturnDate, navigate } = useAppContext()
+  const {
+    pickupDate,
+    setPickupDate,
+    returnDate,
+    setReturnDate,
+    navigate,
+  } = useAppContext()
+
   const [pickupLocation, setPickupLocation] = useState("")
+
+  // ✅ Today's date (YYYY-MM-DD)
+  const today = new Date().toISOString().split("T")[0]
 
   // Online car images for slideshow
   const carImages = [
@@ -19,13 +30,36 @@ const Hero = () => {
       setCurrent((prev) => (prev + 1) % carImages.length)
     }, 4000)
     return () => clearInterval(interval)
-  }, [carImages.length])
+  }, [])
+
+  // ✅ Auto-clear invalid return date
+  useEffect(() => {
+    if (pickupDate && returnDate && returnDate < pickupDate) {
+      setReturnDate("")
+    }
+  }, [pickupDate])
 
   const handleSearch = (e) => {
     e.preventDefault()
-    navigate(`/cars?pickupLocation=${pickupLocation}&pickupDate=${pickupDate}&returnDate=${returnDate}`
-);
 
+    if (!pickupLocation || !pickupDate || !returnDate) {
+      toast.error("Please fill all fields")
+      return
+    }
+
+    if (pickupDate < today) {
+      toast.error("Pickup date cannot be in the past")
+      return
+    }
+
+    if (returnDate < pickupDate) {
+      toast.error("Return date must be after pickup date")
+      return
+    }
+
+    navigate(
+      `/cars?pickupLocation=${pickupLocation}&pickupDate=${pickupDate}&returnDate=${returnDate}`
+    )
   }
 
   return (
@@ -51,11 +85,11 @@ const Hero = () => {
           Find the perfect car for your next adventure
         </h1>
 
-        {/* ✅ Single Search Form (Clean + Attractive) */}
+        {/* Search Form */}
         <form
           onSubmit={handleSearch}
           className="flex flex-col md:flex-row items-center justify-center gap-4 
-                    bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 w-full max-w-3xl mx-auto"
+                     bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-5 w-full max-w-3xl mx-auto"
         >
           {/* Pickup Location */}
           <select
@@ -66,7 +100,9 @@ const Hero = () => {
           >
             <option value="">Select Location</option>
             {cityList.map((city) => (
-              <option key={city} value={city}>{city}</option>
+              <option key={city} value={city}>
+                {city}
+              </option>
             ))}
           </select>
 
@@ -74,6 +110,7 @@ const Hero = () => {
           <input
             type="date"
             required
+            min={today}               // ✅ no past dates
             value={pickupDate}
             onChange={(e) => setPickupDate(e.target.value)}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary outline-none"
@@ -83,6 +120,7 @@ const Hero = () => {
           <input
             type="date"
             required
+            min={pickupDate || today} // ✅ return ≥ pickup
             value={returnDate}
             onChange={(e) => setReturnDate(e.target.value)}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-primary outline-none"
