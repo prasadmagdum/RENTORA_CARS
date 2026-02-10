@@ -7,8 +7,7 @@ Rentora-A Smart Car Rental Platform
  Rent and manage bookings (for users)
  Search & filter cars by location, price, and type
  Owner & admin dashboards
- Real-time notifications and smooth UI
-Fully responsive design
+ Real-time notifications and smooth UI & Fully responsive design
 
 Tech Stack
 Frontend: React.js, Tailwind CSS
